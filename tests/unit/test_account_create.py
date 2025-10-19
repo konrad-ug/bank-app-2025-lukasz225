@@ -25,6 +25,22 @@ class TestAccount:
 		assert account.pesel == "Invalid"
 
 
-	def test_account_with_valid_promo_code(self):
-		account = Account("Adam", "Nowak", "02340174842", promo_code="PROM_XYZ")
+	def test_account_with_valid_promo_code_and_pesel(self):
+		account = Account("Jane", "Doe", "02320174842", promo_code="PROM_XYZ")
 		assert account.balance == 50
+
+	def test_promo_given_if_born_after_1960(self):
+		account = Account("Jane", "Doe", "02320174842", promo_code="PROM_ABC")
+		assert account.balance == 50
+
+	def test_no_promo_if_born_before_1960(self):
+		account = Account("Jane", "Doe", "59010112345", promo_code="PROM_ABC")
+		assert account.balance == 0
+
+	def test_no_promo_if_pesel_invalid(self):
+		account = Account("Jane", "Doe", "123", promo_code="PROM_ABC")
+		assert account.balance == 0
+
+	def test_no_promo_if_code_invalid(self):
+		account = Account("Jane", "Doe", "02340174842", promo_code="XYZ")
+		assert account.balance == 0
