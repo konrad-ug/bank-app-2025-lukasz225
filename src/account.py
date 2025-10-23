@@ -26,3 +26,15 @@ class Account:
 	def is_eligible_for_promo(self):
 		year = self.get_birth_year_from_pesel()
 		return year is not None and year > 1960
+	
+
+	def receive_transfer(self, amount):
+		if amount > 0:
+			self.balance += amount
+
+	def send_transfer(self, amount):
+		if amount > 0 and self.balance >= amount:
+			self.balance -= amount
+			return True 
+		else:
+			return False

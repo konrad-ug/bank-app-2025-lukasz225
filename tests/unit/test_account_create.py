@@ -44,3 +44,39 @@ class TestAccount:
 	def test_no_promo_if_code_invalid(self):
 		account = Account("Jane", "Doe", "02340174842", promo_code="XYZ")
 		assert account.balance == 0
+
+class TestAccountTransfers:
+	def test_receive_transfer_increases_balance(self):
+		account = Account("Test", "user", "00210112345")
+		assert account.balance == 0
+
+		account.receive_transfer(100)
+		assert account.balance == 100
+		
+		account.receive_transfer(50)
+		assert account.balance == 150
+	def test_send_transfer_decreases_balance_on_success(self):
+		account = Account("Test", "User", "00210112345")
+		account.balance = 500
+		
+		success = account.send_transfer(200)
+		
+		assert account.balance == 300
+		assert success == True
+	def test_send_transfer_fails_on_insufficient_funds(self):
+		account = Account("Test", "User", "00210112345")
+		account.balance = 100
+		
+		failure = account.send_transfer(200)
+		
+		assert account.balance == 100
+		assert failure == False
+
+	def test_send_negative_transfer_fails(self):
+		account = Account("Test", "User", "00210112345")
+		account.balance = 100
+		
+		failure = account.send_transfer(-50)
+		
+		assert account.balance == 100
+		assert failure == False
