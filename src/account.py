@@ -1,4 +1,5 @@
 class Account:
+  
   def __init__(self):
     self.balance = 0
     self.express_transfer_fee = 0
@@ -21,6 +22,9 @@ class Account:
     else:
       return False
     
+  def check_balance_list(self):
+    if self.balance > 1000:
+    	return "passed"
 
 class PersonalAccount(Account):
   def __init__(self, first_name, last_name, pesel, promo_code=None):
@@ -62,4 +66,4 @@ class BusinessAccount(Account):
     self.nip = nip if self.is_nip_valid(nip) else "Invalid"
 
   def is_nip_valid(self, nip):
-    return isinstance(nip, str) and len(nip) == 10
+    return isinstance(nip, str) and len(nip) == 10  
