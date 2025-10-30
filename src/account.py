@@ -22,10 +22,9 @@ class Account:
     else:
       return False
     
-  def check_balance_list(self):
-    if self.balance > 1000:
-    	return "passed"
-
+  def without_test(self):
+    pass
+  
 class PersonalAccount(Account):
   def __init__(self, first_name, last_name, pesel, promo_code=None):
     super().__init__()
