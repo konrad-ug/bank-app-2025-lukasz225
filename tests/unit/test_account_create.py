@@ -161,3 +161,52 @@ class TestBusinessAccountTransfers:
     failure = account.send_express_transfer(500)
     assert account.balance == 499
     assert failure == False
+    
+class TestAccountHistory:
+  def test_account_history_is_empty_on_creation(self):
+    account = PersonalAccount("Test", "User", "00210112345")
+    assert account.history == []
+
+  def test_history_receive_transfer(self):
+    account = PersonalAccount("Test", "User", "00210112345")
+    account.receive_transfer(100)
+    assert account.history == [100]
+    account.receive_transfer(50)
+    assert account.history == [100, 50]
+
+  def test_history_send_transfer(self):
+    account = PersonalAccount("Test", "User", "00210112345")
+    account.balance = 200
+    account.send_transfer(100)
+    assert account.history == [-100]
+
+  def test_history_failed_transfer_not_recorded(self):
+    account = PersonalAccount("Test", "User", "00210112345")
+    account.balance = 50
+    account.send_transfer(100)
+    account.receive_transfer(-50)
+    account.send_express_transfer(100) 
+    assert account.history == []
+
+  def test_history_express_transfer_personal_account(self):
+    account = PersonalAccount("Test", "User", "00210112345")
+    account.balance = 200
+    account.send_express_transfer(100)
+    assert account.history == [-100, -1]
+
+  def test_history_express_transfer_business_account(self):
+    account = BusinessAccount("Test Biz", "1112223344")
+    account.balance = 200
+    account.send_express_transfer(100)
+    assert account.history == [-100, -5]
+
+  def test_history_example_scenario(self):
+    account = PersonalAccount("Test", "User", "00210112345")
+    account.receive_transfer(500)
+    account.send_express_transfer(300)
+    assert account.history == [500, -300, -1]
+
+  def test_history_promo_code_not_in_history(self):
+    account = PersonalAccount("Test", "User", "00210112345", promo_code="PROM_ABC")
+    assert account.balance == 50
+    assert account.history == []
