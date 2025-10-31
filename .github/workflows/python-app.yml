@@ -35,11 +35,11 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-- name: Test with pytest
-  run: |
-    # Ta komenda uruchamia testy I TWORZY plik .coverage
-    python3 -m coverage run --source=src -m pytest
+    - name: Test with pytest
+      run: |
+        # Ta komenda uruchamia testy I TWORZY plik .coverage
+        python3 -m coverage run --source=src -m pytest
 
-- name: Check coverage and fail if under 100%
-  run: |
-    python3 -m coverage report --fail-under=100
+    - name: Check coverage and fail if under 100%
+      run: |
+        python3 -m coverage report --fail-under=100
