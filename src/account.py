@@ -20,9 +20,7 @@ class Account:
       return True
     else:
       return False
-    
-def unused_function(self):
-  pass
+
 
 
 class PersonalAccount(Account):
