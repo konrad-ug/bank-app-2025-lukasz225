@@ -2,14 +2,17 @@ class Account:
   def __init__(self):
     self.balance = 0
     self.express_transfer_fee = 0
+    self.history = []
 
   def receive_transfer(self, amount):
     if amount > 0:
       self.balance += amount
+      self.history.append(amount)
 
   def send_transfer(self, amount):
     if amount > 0 and self.balance >= amount:
       self.balance -= amount
+      self.history.append(-amount)
       return True 
     else:
       return False
@@ -17,10 +20,11 @@ class Account:
   def send_express_transfer(self, amount):
     if amount > 0 and self.balance >= amount:
       self.balance -= (amount + self.express_transfer_fee)
+      self.history.append(-amount)
+      self.history.append(-self.express_transfer_fee)
       return True
     else:
       return False
-
 
 
 class PersonalAccount(Account):
