@@ -1,3 +1,6 @@
+#
+# Plik: account.py
+#
 class Account:
   def __init__(self):
     self.balance = 0
@@ -57,6 +60,32 @@ class PersonalAccount(Account):
   def is_eligible_for_promo(self):
     year = self.get_birth_year_from_pesel()
     return year is not None and year > 1960
+
+  def submit_for_loan(self, amount):
+    if amount <= 0:
+      return False
+      
+    condition1 = False
+    if len(self.history) >= 3:
+      last_three = self.history[-3:]
+      if all(t > 0 for t in last_three):
+        condition1 = True
+
+    condition2 = False
+    if len(self.history) >= 5:
+      last_five = self.history[-5:]
+      sum_of_last_five = sum(last_five)
+      if sum_of_last_five > amount:
+        condition2 = True
+
+    is_granted = condition1 or condition2
+
+    if is_granted:
+      self.balance += amount
+      self.history.append(amount)
+      return True
+    else:
+      return False
   
 
 class BusinessAccount(Account):
