@@ -13,7 +13,7 @@ class Account:
     if amount > 0 and self.balance >= amount:
       self.balance -= amount
       self.history.append(-amount)
-      return True 
+      return True
     else:
       return False
 
@@ -33,15 +33,14 @@ class PersonalAccount(Account):
     self.express_transfer_fee = 1
     self.first_name = first_name
     self.last_name = last_name
-    
     self.pesel = pesel if self.is_pesel_valid(pesel) else "Invalid"
 
-    if (promo_code and promo_code.startswith("PROM_") and self.is_eligible_for_promo()):
+    if promo_code and promo_code.startswith("PROM_") and self.is_eligible_for_promo():
       self.balance += 50
 
   def is_pesel_valid(self, pesel):
     return isinstance(pesel, str) and len(pesel) == 11
-  
+
   def get_birth_year_from_pesel(self):
     if not self.is_pesel_valid(self.pesel):
       return None
@@ -58,32 +57,32 @@ class PersonalAccount(Account):
     year = self.get_birth_year_from_pesel()
     return year is not None and year > 1960
 
+  def _check_loan_condition_last_three_positive(self):
+    if len(self.history) >= 3:
+      last_three = self.history[-3:]
+      return all(t > 0 for t in last_three)
+    return False
+
+  def _check_loan_condition_sum_last_five(self, amount):
+    if len(self.history) >= 5:
+      last_five = self.history[-5:]
+      return sum(last_five) > amount
+    return False
+
   def submit_for_loan(self, amount):
     if amount <= 0:
       return False
-      
-    condition1 = False
-    if len(self.history) >= 3:
-      last_three = self.history[-3:]
-      if all(t > 0 for t in last_three):
-        condition1 = True
+    
+    condition1 = self._check_loan_condition_last_three_positive()
+    condition2 = self._check_loan_condition_sum_last_five(amount)
 
-    condition2 = False
-    if len(self.history) >= 5:
-      last_five = self.history[-5:]
-      sum_of_last_five = sum(last_five)
-      if sum_of_last_five > amount:
-        condition2 = True
-
-    is_granted = condition1 or condition2
-
-    if is_granted:
+    if condition1 or condition2:
       self.balance += amount
       self.history.append(amount)
       return True
-    else:
-      return False
-  
+    
+    return False
+
 
 class BusinessAccount(Account):
   def __init__(self, company_name, nip):
