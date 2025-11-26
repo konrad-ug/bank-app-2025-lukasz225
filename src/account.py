@@ -93,3 +93,11 @@ class BusinessAccount(Account):
 
   def is_nip_valid(self, nip):
     return isinstance(nip, str) and len(nip) == 10
+
+  def take_loan(self, amount):
+    if self.balance >= 2 * amount and amount > 0:
+      if -1775 in self.history:
+        self.balance += amount
+        return True
+    
+    return False
