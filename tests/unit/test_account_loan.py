@@ -48,3 +48,27 @@ class TestPersonalAccountLoans:
   def test_business_account_cannot_take_loan(self, business_account):
     with pytest.raises(AttributeError):
       business_account.submit_for_loan(1000)
+
+
+class TestBusinessAccountLoans:
+
+  @pytest.mark.parametrize("balance, history, loan_amount, expected_result", [
+    (5000, [-1775], 2000, True),
+    (5000, [-100, -200], 2000, False),
+    (1000, [-1775], 2000, False),
+    (3550, [-1775, -100], 1775, True),
+    (10000, [-500, -1775, -50], 1000, True),
+    (5000, [-1775], -100, False),
+  ])
+  def test_business_loan_conditions(self, business_account, balance, history, loan_amount, expected_result):
+    business_account.balance = balance
+    business_account.history = history
+    
+    result = business_account.take_loan(loan_amount)
+    
+    assert result == expected_result
+    
+    if expected_result:
+      assert business_account.balance == balance + loan_amount
+    else:
+      assert business_account.balance == balance
