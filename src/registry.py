@@ -16,3 +16,10 @@ class AccountRegistry:
       if account.pesel == pesel:
         return account
     return None
+
+  def delete_account(self, pesel):
+    account_to_delete = self.get_account_by_pesel(pesel)
+    if account_to_delete:
+      self.accounts.remove(account_to_delete)
+      return True
+    return False
