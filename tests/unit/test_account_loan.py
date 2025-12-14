@@ -5,6 +5,7 @@ class TestPersonalAccountLoans:
 
   @pytest.mark.parametrize("transactions, loan_amount, expected_balance", [
     ([100, 200, 300], 5000, 5600),
+    ([-100, 100, 100, 100], 500, 800),
     ([1000, 1000, 1000, -500, 100], 2500, 5100),
     ([1000, 1000, 1000, 100, 100], 2000, 5200),
   ])
@@ -29,13 +30,15 @@ class TestPersonalAccountLoans:
     ([100, 200, -50], 5000),
     ([1000, 1000, 1000, -500, 100], 3000),
     ([100, 100, 100], -500),
+    ([-100], 500), 
   ])
   def test_loan_denied(self, personal_account, transactions, loan_amount):
     for t in transactions:
       if t > 0:
         personal_account.receive_transfer(t)
       else:
-        personal_account.balance += abs(t)
+        if personal_account.balance < abs(t):
+          personal_account.balance += abs(t)
         personal_account.send_transfer(abs(t))
     
     current_balance = personal_account.balance 
