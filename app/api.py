@@ -20,7 +20,7 @@ def create_account():
   pesel = data.get("pesel")
 
   if registry.get_account_by_pesel(pesel):
-    return jsonify({"message": "Account with this pesel already exists"}), 400
+    return jsonify({"message": "Account with this pesel already exists"}), 409
 
   account = PersonalAccount(name, surname, pesel)
   registry.add_account(account)
@@ -82,6 +82,40 @@ def delete_account(pesel):
     return jsonify({"message": "Account not found"}), 404
     
   return jsonify({"message": "Account deleted"}), 200
+
+@app.route("/api/accounts/<pesel>/transfer", methods=['POST'])
+def transfer_money(pesel):
+  data = request.get_json()
+  amount = data.get("amount")
+  transfer_type = data.get("type")
+  
+  print(f"Request transfer: pesel={pesel}, amount={amount}, type={transfer_type}")
+
+  account = registry.get_account_by_pesel(pesel)
+
+  if not account:
+    return jsonify({"message": "Account not found"}), 404
+
+  if transfer_type == "incoming":
+    account.receive_transfer(amount)
+    return jsonify({"message": "Transfer accepted"}), 200
+  
+  elif transfer_type == "outgoing":
+    success = account.send_transfer(amount)
+    if success:
+      return jsonify({"message": "Transfer accepted"}), 200
+    else:
+      return jsonify({"message": "Transfer failed"}), 422
+      
+  elif transfer_type == "express":
+    success = account.send_express_transfer(amount)
+    if success:
+      return jsonify({"message": "Transfer accepted"}), 200
+    else:
+      return jsonify({"message": "Transfer failed"}), 422
+  
+  else:
+    return jsonify({"message": "Unknown transfer type"}), 400
 
 if __name__ == '__main__':
   app.run(debug=True)
