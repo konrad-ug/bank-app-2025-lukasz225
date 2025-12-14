@@ -44,3 +44,13 @@ class TestAccountRegistry:
     
     assert registry.count() == 2
     assert registry.get_account_by_pesel("90010154321") == acc2
+
+  def test_delete_account_success(self, registry, personal_account):
+    registry.add_account(personal_account)
+    result = registry.delete_account(personal_account.pesel)
+    assert result is True
+    assert registry.count() == 0
+
+  def test_delete_account_failed(self, registry):
+    result = registry.delete_account("00000000000")
+    assert result is False
