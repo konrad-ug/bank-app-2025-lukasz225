@@ -1,3 +1,7 @@
+import os
+import requests
+from datetime import datetime
+
 class Account:
   def __init__(self):
     self.balance = 0
@@ -89,10 +93,31 @@ class BusinessAccount(Account):
     super().__init__()
     self.express_transfer_fee = 5
     self.company_name = company_name
-    self.nip = nip if self.is_nip_valid(nip) else "Invalid"
+    
+    if len(nip) != 10:
+      self.nip = "Invalid"
+    else:
+      if self._validate_nip_with_gov(nip):
+        self.nip = nip
+      else:
+        raise ValueError("Company not registered!!")
 
-  def is_nip_valid(self, nip):
-    return isinstance(nip, str) and len(nip) == 10
+  def _validate_nip_with_gov(self, nip):
+    base_url = os.environ.get("BANK_APP_MF_URL", "https://wl-test.mf.gov.pl")
+    date = datetime.today().strftime('%Y-%m-%d')
+    url = f"{base_url}/api/search/nip/{nip}?date={date}"
+    
+    try:
+      response = requests.get(url)
+      
+      if response.status_code == 200:
+        data = response.json()
+        if "result" in data and data["result"].get("subject") is not None:
+          return data["result"]["subject"]["statusVat"] == "Czynny"
+      return False
+    except requests.RequestException:
+      print("Error connecting to MF API")
+      return False
 
   def take_loan(self, amount):
     if self.balance >= 2 * amount and amount > 0:
