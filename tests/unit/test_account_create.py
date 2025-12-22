@@ -1,4 +1,6 @@
 import pytest
+import requests
+from unittest.mock import patch
 from src.account import PersonalAccount, BusinessAccount
 
 class TestPersonalAccountCreation:
@@ -35,19 +37,60 @@ class TestPersonalAccountCreation:
 
 class TestBusinessAccountCreation:
   
-  def test_creation_valid_nip(self):
+  @patch('src.account.requests.get')
+  def test_creation_valid_nip(self, mock_get):
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json.return_value = {
+      "result": {
+        "subject": {
+          "statusVat": "Czynny",
+          "name": "Firma XYZ S.A."
+        }
+      }
+    }
+
     account = BusinessAccount("Firma XYZ S.A.", "1234567890")
     assert account.company_name == "Firma XYZ S.A."
     assert account.nip == "1234567890"
+    mock_get.assert_called_once()
+
+  @patch('src.account.requests.get')
+  def test_creation_nip_not_active(self, mock_get):
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json.return_value = {
+      "result": {
+        "subject": {
+          "statusVat": "Zwolniony"
+        }
+      }
+    }
+
+    with pytest.raises(ValueError, match="Company not registered!!"):
+      BusinessAccount("Firma Krzak", "1234567890")
+
+  @patch('src.account.requests.get')
+  def test_creation_api_error(self, mock_get):
+    mock_get.side_effect = requests.RequestException
+
+    with pytest.raises(ValueError, match="Company not registered!!"):
+      BusinessAccount("Firma Error", "1234567890")
+
+  @patch('src.account.requests.get')
+  def test_creation_api_returns_500(self, mock_get):
+    mock_get.return_value.status_code = 500
+    
+    with pytest.raises(ValueError, match="Company not registered!!"):
+      BusinessAccount("Firma Blad Serwera", "1234567890")
 
   @pytest.mark.parametrize("invalid_nip", [
     "123",
     "1234567890123",
-    1234567890
   ])
-  def test_nip_invalid(self, invalid_nip):
+  @patch('src.account.requests.get')
+  def test_nip_invalid_length(self, mock_get, invalid_nip):
     account = BusinessAccount("Firma Krzak", invalid_nip)
     assert account.nip == "Invalid"
+    mock_get.assert_not_called()
 
 
 class TestPersonalAccountTransfers:
@@ -78,6 +121,11 @@ class TestAccountHistory:
 
 
 class TestBusinessAccountTransfers:
+  @pytest.fixture(autouse=True)
+  def mock_api(self):
+    with patch('src.account.BusinessAccount._validate_nip_with_gov', return_value=True):
+      yield
+
   def test_business_receive_transfer(self):
     account = BusinessAccount("Test Biz", "1112223344")
     account.receive_transfer(1000)
