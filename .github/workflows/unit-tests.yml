@@ -1,11 +1,14 @@
-name: Unit Tests and Coverage
+name: Unit Tests
+
 on: [push, pull_request]
 
 jobs:
-  unit-tests:
+  test:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -15,10 +18,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install pytest
 
-      - name: Run unit tests with coverage
+      - name: Run Unit Tests
         run: |
-          export PYTHONPATH=$PYTHONPATH:.
-          coverage run -m pytest tests/unit
-          coverage report -m
+          # Dodajemy bieżący katalog do ścieżki Pythona
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
+          python -m pytest tests/unit
