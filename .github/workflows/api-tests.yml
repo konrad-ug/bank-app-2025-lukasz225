@@ -18,16 +18,20 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest requests
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          # Instalujemy flask ręcznie dla pewności
+          pip install pytest requests flask
 
       - name: Start Flask and Run API Tests
         run: |
-          # Uruchomienie serwera w tle
-          python app/api.py &
+          # Uruchamiamy serwer w tle i logujemy wyjście do pliku, żeby widzieć błędy
+          nohup python app/api.py > flask_log.txt 2>&1 &
           
-          # Czekamy 5 sekund, az serwer wystartuje
-          sleep 5
+          # Czekamy 10 sekund, żeby serwer na pewno wstał
+          sleep 10
+          
+          # Sprawdzamy czy proces żyje (dla debugowania)
+          cat flask_log.txt
           
           # Uruchamiamy testy
           python -m pytest tests/api
