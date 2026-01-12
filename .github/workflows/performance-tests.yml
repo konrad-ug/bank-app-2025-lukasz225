@@ -1,0 +1,17 @@
+name: API Performance
+on: [push]
+jobs:
+  performance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Start flask
+        run: |
+          export PYTHONPATH=$GITHUB_WORKSPACE
+          export FLASK_APP=app/api.py
+          flask run &
+          sleep 5
+      - name: Execute Performance tests
+        run: python3 -m pytest tests/perf
