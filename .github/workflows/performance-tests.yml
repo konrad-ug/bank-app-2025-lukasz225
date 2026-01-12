@@ -23,9 +23,8 @@ jobs:
 
       - name: Start Flask and Run Performance Tests
         run: |
-          # Uruchomienie aplikacji w tle
           python app/api.py &
-          # Czekamy aż Flask wstanie
+          
           sleep 5
-          # Uruchamiamy tylko testy wydajnościowe
+          
           python -m pytest tests/perf

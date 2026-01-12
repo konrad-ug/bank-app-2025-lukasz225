@@ -23,9 +23,8 @@ jobs:
 
       - name: Start Flask and Run API Tests
         run: |
-          # Uruchomienie aplikacji w tle
           python app/api.py &
-          # Czekamy aż Flask wstanie
+          
           sleep 5
-          # Uruchamiamy tylko testy API
+          
           python -m pytest tests/api
