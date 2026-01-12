@@ -41,6 +41,5 @@ jobs:
 
     - name: Test with pytest
       run: |
-        # TO JEST KLUCZOWE: Ponowne ustawienie ścieżki w tym kroku
         export PYTHONPATH=$PYTHONPATH:$(pwd)
         pytest

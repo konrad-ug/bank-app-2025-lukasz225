@@ -23,14 +23,10 @@ jobs:
 
       - name: Start Flask and Run API Tests
         run: |
-          # Dodajemy bieżący katalog do ścieżki Pythona, aby widział folder src
           export PYTHONPATH=$PYTHONPATH:$(pwd)
           
-          # Uruchamiamy aplikację z poziomu głównego katalogu
           python app/api.py &
           
-          # Czekamy aż serwer wstanie
           sleep 10
           
-          # Uruchamiamy testy API
           python -m pytest tests/api

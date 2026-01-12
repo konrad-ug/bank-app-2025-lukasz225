@@ -23,6 +23,5 @@ jobs:
 
       - name: Run Unit Tests
         run: |
-          # Dodajemy bieżący katalog do ścieżki Pythona
           export PYTHONPATH=$PYTHONPATH:$(pwd)
           python -m pytest tests/unit
