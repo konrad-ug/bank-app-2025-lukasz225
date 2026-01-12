@@ -23,17 +23,14 @@ jobs:
 
       - name: Start Flask and Run API Tests
         run: |
-          # Próba uruchomienia z logowaniem błędów do pliku
+          # Dodajemy bieżący katalog do ścieżki Pythona, aby widział folder src
           export PYTHONPATH=$PYTHONPATH:$(pwd)
-          nohup python app/api.py > flask_log.txt 2>&1 &
           
-          # Czekamy na start
+          # Uruchamiamy aplikację z poziomu głównego katalogu
+          python app/api.py &
+          
+          # Czekamy aż serwer wstanie
           sleep 10
           
-          # Wyświetlamy logi Flaska, żeby zobaczyć czy nie wywalił się na starcie
-          echo "--- FLASK LOGS ---"
-          cat flask_log.txt
-          echo "------------------"
-          
-          # Uruchomienie testów
+          # Uruchamiamy testy API
           python -m pytest tests/api

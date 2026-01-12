@@ -23,17 +23,14 @@ jobs:
 
       - name: Start Flask and Run Performance Tests
         run: |
-          # Ustawienie ścieżek i start serwera
+          # Dodajemy bieżący katalog do ścieżki Pythona
           export PYTHONPATH=$PYTHONPATH:$(pwd)
-          nohup python app/api.py > flask_log.txt 2>&1 &
+          
+          # Uruchamiamy aplikację
+          python app/api.py &
           
           # Czekamy na start
           sleep 10
           
-          # Diagnostyka
-          echo "--- FLASK LOGS ---"
-          cat flask_log.txt
-          echo "------------------"
-          
-          # Uruchomienie testów
+          # Uruchamiamy testy wydajnościowe
           python -m pytest tests/perf
