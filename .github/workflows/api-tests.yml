@@ -19,16 +19,13 @@ jobs:
 
       - name: Run Flask and Test
         run: |
-          # 1. Ustawienie ścieżek
           export PYTHONPATH=$GITHUB_WORKSPACE
           export FLASK_APP=app/api.py
           
           echo "Uruchamianie Flaska..."
-          # 2. Start Flaska w tle, logi idą do flask.log
           python3 -m flask run --host=127.0.0.1 --port=5000 > flask.log 2>&1 &
           PID=$!
           
-          # 3. Pętla oczekująca na start serwera (max 15 sekund)
           for i in {1..15}; do
             if curl -s http://127.0.0.1:5000 > /dev/null; then
               echo "Flask wystartował pomyślnie!"
@@ -37,7 +34,6 @@ jobs:
             echo "Czekam na Flaska... ($i/15)"
             sleep 1
             
-            # Sprawdź czy proces nie umarł
             if ! kill -0 $PID 2>/dev/null; then
               echo "BŁĄD: Flask umarł przedwcześnie!"
               echo "=== LOGI FLASKA ==="
@@ -46,7 +42,6 @@ jobs:
             fi
           done
 
-          # 4. Jeśli po 15s nadal nie działa, pokaż logi i przerwij
           if ! curl -s http://127.0.0.1:5000 > /dev/null; then
             echo "TIMEOUT: Flask nie odpowiada."
             echo "=== LOGI FLASKA ==="
@@ -54,12 +49,10 @@ jobs:
             exit 1
           fi
 
-          # 5. Uruchomienie testów (tylko jeśli Flask działa)
           echo "Uruchamianie testów..."
           python3 -m pytest tests/api
           TEST_EXIT_CODE=$?
           
-          # 6. Pokaż logi Flaska na koniec (dla pewności) i zwróć wynik testu
           if [ $TEST_EXIT_CODE -ne 0 ]; then
             echo "Testy nie przeszły. Logi serwera:"
             cat flask.log
