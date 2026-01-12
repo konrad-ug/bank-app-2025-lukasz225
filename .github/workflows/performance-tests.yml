@@ -23,8 +23,11 @@ jobs:
 
       - name: Start Flask and Run Performance Tests
         run: |
+          # Uruchomienie serwera w tle
           python app/api.py &
           
+          # Czekamy 5 sekund, az serwer wystartuje
           sleep 5
           
+          # Uruchamiamy testy
           python -m pytest tests/perf
