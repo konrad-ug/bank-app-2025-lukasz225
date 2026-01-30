@@ -10,6 +10,12 @@ jobs:
   bdd-test:
     runs-on: ubuntu-latest
 
+    services:
+      mongo:
+        image: mongo
+        ports:
+          - 27017:27017
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -22,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install behave requests flask
+          pip install behave requests flask pymongo
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Start Flask Server

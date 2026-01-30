@@ -6,9 +6,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from flask import Flask, request, jsonify
 from src.registry import AccountRegistry
 from src.account import PersonalAccount
+from src.mongo_repository import MongoAccountsRepository
 
 app = Flask(__name__)
 registry = AccountRegistry()
+account_repository = MongoAccountsRepository()
 
 @app.route("/api/accounts", methods=['POST'])
 def create_account():
@@ -116,6 +118,24 @@ def transfer_money(pesel):
   
   else:
     return jsonify({"message": "Unknown transfer type"}), 400
+
+@app.route("/api/accounts/save", methods=['POST'])
+def save_accounts():
+  print("Request save accounts to DB")
+  current_accounts = registry.get_all_accounts()
+  account_repository.save_all(current_accounts)
+  return jsonify({"message": "Accounts saved successfully"}), 200
+
+@app.route("/api/accounts/load", methods=['POST'])
+def load_accounts():
+  print("Request load accounts from DB")
+  registry.accounts = [] 
+  
+  loaded_accounts = account_repository.load_all()
+  for acc in loaded_accounts:
+    registry.add_account(acc)
+    
+  return jsonify({"message": "Accounts loaded successfully", "count": len(loaded_accounts)}), 200
 
 if __name__ == '__main__':
   app.run(debug=True)
