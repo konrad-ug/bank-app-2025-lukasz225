@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 from src.mongo_repository import MongoAccountsRepository
-from src.account import Account
+from src.account import PersonalAccount  # ZMIANA: Importujemy PersonalAccount
 
 class TestMongoRepository(unittest.TestCase):
   def setUp(self):
@@ -16,7 +16,7 @@ class TestMongoRepository(unittest.TestCase):
       self.repo = MongoAccountsRepository()
 
   def test_save_all(self):
-    acc1 = Account("Jan", "Kowalski", "12345678901")
+    acc1 = PersonalAccount("Jan", "Kowalski", "12345678901")
     accounts = [acc1]
 
     self.repo.save_all(accounts)
@@ -25,6 +25,7 @@ class TestMongoRepository(unittest.TestCase):
     self.repo._collection.insert_one.assert_called()
     args, _ = self.repo._collection.insert_one.call_args
     self.assertEqual(args[0]['pesel'], "12345678901")
+    self.assertEqual(args[0]['name'], "Jan") 
 
   def test_load_all(self):
     fake_db_data = [{
@@ -39,5 +40,5 @@ class TestMongoRepository(unittest.TestCase):
     loaded = self.repo.load_all()
 
     self.assertEqual(len(loaded), 1)
-    self.assertEqual(loaded[0].name, "Adam")
+    self.assertEqual(loaded[0].first_name, "Adam")
     self.assertEqual(loaded[0].balance, 100)
